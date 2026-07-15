@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  discord-server-snapshot:
+    image: ghcr.io/r-selfhosted/discord-server-snapshot:0.1.0
+    secrets:
+      - discord_token
+    environment:
+      DISCORD_TOKEN_FILE: /run/secrets/discord_token
+      DISCORD_GUILD_IDS: ${DISCORD_GUILD_IDS}
+      BACKUP_CRON: "0 3 * * *"
+      BACKUP_TIMEZONE: America/Chicago
+      BACKUP_ON_START: "true"
+      BACKUP_ROOT: /data/backups
+      HEALTH_STATUS_FILE: /data/status/health.json
+      BACKUP_MAX_MESSAGES_PER_CHANNEL: "0"
+      BACKUP_IMAGES: base64
+      LOG_LEVEL: info
+    volumes:
+      - discord_snapshots:/data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.discord-backup == true
+
+volumes:
+  discord_snapshots:
+
+secrets:
+  discord_token:
+    external: true

@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+backups/*
+!backups/.gitkeep
+secrets/
+*.log
+discord-rebackup-codex-implementation-plan.md

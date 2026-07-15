@@ -1,0 +1,44 @@
+services:
+  discord-server-snapshot:
+    build: .
+    image: ghcr.io/r-selfhosted/discord-server-snapshot:latest
+    container_name: discord-server-snapshot
+    restart: unless-stopped
+    init: true
+    environment:
+      DISCORD_TOKEN_FILE: /run/secrets/discord_token
+      DISCORD_GUILD_IDS: ${DISCORD_GUILD_IDS}
+      BACKUP_CRON: "0 3 * * *"
+      BACKUP_TIMEZONE: America/Chicago
+      BACKUP_ON_START: "true"
+      BACKUP_ROOT: /data/backups
+      BACKUP_RETENTION_DAYS: "90"
+      BACKUP_MINIMUM_KEEP: "14"
+      BACKUP_MAX_MESSAGES_PER_CHANNEL: "0"
+      BACKUP_IMAGES: base64
+      HEALTH_STATUS_FILE: /data/status/health.json
+      LOG_LEVEL: info
+    secrets:
+      - discord_token
+    volumes:
+      - discord_snapshots:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "node", "dist/index.js", "healthcheck"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  discord_snapshots:
+
+secrets:
+  discord_token:
+    file: ./secrets/discord_token.txt

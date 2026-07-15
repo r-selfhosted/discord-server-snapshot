@@ -1,0 +1,44 @@
+{
+  "name": "discord-server-snapshot",
+  "version": "0.1.0",
+  "description": "Self-hosted point-in-time snapshots and recovery for Discord servers.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "discord-server-snapshot": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --check . --ignore-unknown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "node dist/index.js daemon",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "commander": "15.0.0",
+    "cron-parser": "5.6.2",
+    "discord-rebackup": "4.1.0",
+    "discord.js": "14.27.0",
+    "node-cron": "4.6.0",
+    "pino": "10.3.1",
+    "proper-lockfile": "4.1.2",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.1.1",
+    "@types/proper-lockfile": "4.1.4",
+    "eslint": "10.7.0",
+    "prettier": "3.9.5",
+    "tsx": "4.23.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.64.0",
+    "vitest": "4.1.10"
+  }
+}
