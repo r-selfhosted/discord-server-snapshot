@@ -12,7 +12,8 @@ RUN npm run build
 
 FROM node:22.21.1-alpine AS runtime
 WORKDIR /app
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+  TINI_SUBREAPER=true
 RUN apk add --no-cache tini \
   && mkdir -p /data/backups /data/status /data/locks /data/restore-history \
   && chown -R node:node /data /app

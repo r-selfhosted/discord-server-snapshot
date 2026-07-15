@@ -1,11 +1,13 @@
 import {
   Client,
+  Events,
   GatewayIntentBits,
   Guild,
   PermissionFlagsBits,
   PermissionsBitField
 } from "discord.js";
 import type { AppConfig } from "../config.js";
+import { redactSecrets } from "../logging.js";
 
 export function createDiscordClient(config: AppConfig): Client {
   const intents = [GatewayIntentBits.Guilds];
@@ -19,7 +21,7 @@ export async function loginDiscord(config: AppConfig): Promise<Client> {
   await client.login(config.discordToken);
   await new Promise<void>((resolve) => {
     if (client.isReady()) resolve();
-    else client.once("ready", () => resolve());
+    else client.once(Events.ClientReady, () => resolve());
   });
   return client;
 }
@@ -27,7 +29,13 @@ export async function loginDiscord(config: AppConfig): Promise<Client> {
 export async function fetchConfiguredGuilds(client: Client, guildIds: string[]): Promise<Guild[]> {
   const guilds: Guild[] = [];
   for (const guildId of guildIds) {
-    guilds.push(await client.guilds.fetch(guildId));
+    try {
+      guilds.push(await client.guilds.fetch(guildId));
+    } catch (error) {
+      throw new Error(`Unable to fetch Discord guild ${guildId}: ${redactSecrets(error)}`, {
+        cause: error
+      });
+    }
   }
   return guilds;
 }

@@ -3,8 +3,7 @@ services:
     build: .
     image: ghcr.io/r-selfhosted/discord-server-snapshot:latest
     container_name: discord-server-snapshot
-    restart: unless-stopped
-    init: true
+    restart: on-failure:10
     environment:
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
       DISCORD_GUILD_IDS: ${DISCORD_GUILD_IDS}
