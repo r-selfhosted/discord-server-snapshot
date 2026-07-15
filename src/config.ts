@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { z } from "zod";
 import cron from "node-cron";
 
@@ -40,8 +39,7 @@ const boolFromEnv = z
 const numberFromEnv = z.coerce.number().int();
 
 const envSchema = z.object({
-  DISCORD_TOKEN: z.string().optional(),
-  DISCORD_TOKEN_FILE: z.string().optional(),
+  DISCORD_BOT_TOKEN: z.string().optional(),
   DISCORD_GUILD_IDS: z.string().default(""),
   BACKUP_CRON: z.string().default("0 3 * * *"),
   BACKUP_TIMEZONE: z.string().default("America/Chicago"),
@@ -67,14 +65,14 @@ export interface LoadConfigOptions {
   env?: NodeJS.ProcessEnv;
 }
 
-export async function loadConfig(options: LoadConfigOptions = {}): Promise<AppConfig> {
+export function loadConfig(options: LoadConfigOptions = {}): AppConfig {
   const requireDiscord = options.requireDiscord ?? true;
   const parsed = envSchema.parse(options.env ?? process.env);
-  const discordToken = await resolveToken(parsed.DISCORD_TOKEN, parsed.DISCORD_TOKEN_FILE);
+  const discordToken = parsed.DISCORD_BOT_TOKEN?.trim() || undefined;
   const guildIds = parseGuildIds(parsed.DISCORD_GUILD_IDS);
 
   if (requireDiscord && !discordToken) {
-    throw new Error("DISCORD_TOKEN or DISCORD_TOKEN_FILE is required.");
+    throw new Error("DISCORD_BOT_TOKEN is required.");
   }
   if (requireDiscord && guildIds.length === 0) {
     throw new Error("DISCORD_GUILD_IDS must include at least one guild ID.");
@@ -131,14 +129,4 @@ export function excludedResources(config: AppConfig): string[] {
     config.backupExcludeRoles ? "roles" : undefined,
     config.backupExcludeChannels ? "channels" : undefined
   ].filter((value): value is string => Boolean(value));
-}
-
-async function resolveToken(
-  token: string | undefined,
-  tokenFile: string | undefined
-): Promise<string | undefined> {
-  if (tokenFile) {
-    return (await readFile(tokenFile, "utf8")).trim();
-  }
-  return token?.trim() || undefined;
 }

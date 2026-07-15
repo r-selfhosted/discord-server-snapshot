@@ -11,7 +11,7 @@ Discord and `discord-rebackup` cannot faithfully restore everything. Audit logs,
 ## Bot Setup
 
 1. Create an application in the Discord Developer Portal.
-2. Add a bot and store its token as a Docker secret or `DISCORD_TOKEN`.
+2. Add a bot and provide its token as `DISCORD_BOT_TOKEN`.
 3. Invite the bot with permissions for Manage Server, Manage Channels, Manage Roles, Manage Webhooks, Manage Emojis and Stickers, View Channels, and Ban Members when bans are enabled.
 4. Place the bot's highest role above every normal role it may need to recreate or manage.
 5. Keep privileged message and member intents disabled for the default structure-only mode.
@@ -22,7 +22,7 @@ Administrator is operationally simpler but not required when the explicit permis
 
 Copy `.env.example` and set:
 
-- `DISCORD_TOKEN` or `DISCORD_TOKEN_FILE`; the file wins when both are present.
+- `DISCORD_BOT_TOKEN`.
 - `DISCORD_GUILD_IDS`, comma-separated.
 - `BACKUP_CRON` and `BACKUP_TIMEZONE`.
 - `BACKUP_ROOT`, default `/data/backups`.
@@ -35,9 +35,7 @@ Tokens, complete snapshot JSON, and Base64 image payloads are never intentionall
 ## Docker Compose
 
 ```sh
-mkdir -p secrets
-printf '%s' 'YOUR_DISCORD_BOT_TOKEN' > secrets/discord_token.txt
-DISCORD_GUILD_IDS=123456789012345678 docker compose up -d --build
+DISCORD_BOT_TOKEN=YOUR_DISCORD_BOT_TOKEN DISCORD_GUILD_IDS=123456789012345678 docker compose up -d --build
 ```
 
 The container runs as a non-root user with a read-only root filesystem. The `/data` volume must be writable by the container user.
@@ -45,9 +43,8 @@ The container runs as a non-root user with a read-only root filesystem. The `/da
 ## Docker Swarm
 
 ```sh
-printf '%s' 'YOUR_DISCORD_BOT_TOKEN' | docker secret create discord_token -
 docker node update --label-add discord-backup=true <node>
-DISCORD_GUILD_IDS=123456789012345678 docker stack deploy -c stack.yaml discord-snapshot
+DISCORD_BOT_TOKEN=YOUR_DISCORD_BOT_TOKEN DISCORD_GUILD_IDS=123456789012345678 docker stack deploy -c stack.yaml discord-snapshot
 ```
 
 Run one replica only. The application lock is a final guard, not a replacement for `replicas: 1`.

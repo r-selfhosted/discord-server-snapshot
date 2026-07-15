@@ -3,10 +3,8 @@ version: "3.9"
 services:
   discord-server-snapshot:
     image: ghcr.io/r-selfhosted/discord-server-snapshot:0.1.0
-    secrets:
-      - discord_token
     environment:
-      DISCORD_TOKEN_FILE: /run/secrets/discord_token
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
       DISCORD_GUILD_IDS: ${DISCORD_GUILD_IDS}
       BACKUP_CRON: "0 3 * * *"
       BACKUP_TIMEZONE: America/Chicago
@@ -28,7 +26,3 @@ services:
 
 volumes:
   discord_snapshots:
-
-secrets:
-  discord_token:
-    external: true

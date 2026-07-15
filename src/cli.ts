@@ -93,18 +93,18 @@ function wrap<T>(fn: (options: T) => Promise<void>) {
 }
 
 async function runDaemonCommand(): Promise<void> {
-  const config = await loadConfig();
+  const config = loadConfig();
   await runDaemon(config, new DiscordRebackupAdapter(), createLogger(config.logLevel));
 }
 
 async function runHealthcheckCommand(): Promise<void> {
-  const config = await loadConfig({ requireDiscord: false });
+  const config = loadConfig({ requireDiscord: false });
   await checkHealth(config);
   console.log("healthy");
 }
 
 async function runBackupCommand(options: { guild?: string }): Promise<void> {
-  const config = await loadConfig();
+  const config = loadConfig();
   const client = await loginDiscord(config);
   const guildIds = selectGuilds(config.discordGuildIds, options.guild);
   const guilds = await fetchConfiguredGuilds(client, guildIds);
@@ -124,7 +124,7 @@ async function runBackupCommand(options: { guild?: string }): Promise<void> {
 }
 
 async function runListCommand(options: { guild?: string; json?: boolean }): Promise<void> {
-  const config = await loadConfig({ requireDiscord: false });
+  const config = loadConfig({ requireDiscord: false });
   const guildIds = selectGuilds(config.discordGuildIds, options.guild);
   const records = (
     await Promise.all(guildIds.map((guildId) => listSnapshotRecords(config.backupRoot, guildId)))
@@ -145,7 +145,7 @@ async function runInspectCommand(options: {
   snapshot: string;
   json?: boolean;
 }): Promise<void> {
-  const config = await loadConfig({ requireDiscord: false });
+  const config = loadConfig({ requireDiscord: false });
   const snapshotPath = await resolveSnapshotReference(
     config.backupRoot,
     options.guild,
@@ -166,7 +166,7 @@ async function runInspectCommand(options: {
 }
 
 async function runValidateCommand(options: { guild: string; snapshot: string }): Promise<void> {
-  const config = await loadConfig({ requireDiscord: false });
+  const config = loadConfig({ requireDiscord: false });
   const snapshotPath = await resolveSnapshotReference(
     config.backupRoot,
     options.guild,
@@ -182,7 +182,7 @@ async function runValidateCommand(options: { guild: string; snapshot: string }):
 }
 
 async function runPruneCommand(options: { guild?: string; dryRun?: boolean }): Promise<void> {
-  const config = await loadConfig({ requireDiscord: false });
+  const config = loadConfig({ requireDiscord: false });
   const guildIds = selectGuilds(config.discordGuildIds, options.guild);
   for (const guildId of guildIds) {
     const result = await applyRetention(config, guildId, { dryRun: options.dryRun ?? false });
@@ -200,7 +200,7 @@ async function runRestoreCommand(options: {
   acknowledgeDestructiveRestore?: boolean;
   skipPreRestoreBackup?: boolean;
 }): Promise<void> {
-  const config = await loadConfig();
+  const config = loadConfig();
   const client = await loginDiscord(config);
   const [guild] = await fetchConfiguredGuilds(client, [options.guild]);
   if (!guild) throw new Error(`Guild not found: ${options.guild}`);
@@ -216,7 +216,7 @@ async function runRestoreCommand(options: {
 }
 
 async function runDoctorCommand(): Promise<void> {
-  const config = await loadConfig();
+  const config = loadConfig();
   await mkdir(config.backupRoot, { recursive: true });
   const testFile = path.join(config.backupRoot, ".doctor-atomic-test");
   await writeFileAtomic(testFile, "ok\n");
