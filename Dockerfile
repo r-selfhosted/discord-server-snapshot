@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:22.21.1-alpine AS deps
+FROM node:26.11.1-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -10,7 +10,7 @@ COPY tsconfig.json tsconfig.test.json eslint.config.js .prettierrc ./
 COPY src ./src
 RUN npm run build
 
-FROM node:22.21.1-alpine AS runtime
+FROM node:26.11.1-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production \
   TINI_SUBREAPER=true
